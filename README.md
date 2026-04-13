@@ -1,7 +1,7 @@
 # AI Discovery Interview Analyzer
 ### Extract Jobs-to-be-Done, pain point themes, and ranked opportunities from raw user interview notes
 
-**Live Demo → [eval4576.github.io/ai-discovery-analyzer](https://eval4576.github.io/ai-discovery-analyzer)**
+**Live Demo → [eval4576.github.io/AI-Discovery-Tool-Analyzer](https://eval4576.github.io/AI-Discovery-Tool-Analyzer/)**
 
 ---
 
