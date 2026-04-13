@@ -1,7 +1,7 @@
 # AI Discovery Interview Analyzer
 ### Extract Jobs-to-be-Done, pain point themes, and ranked opportunities from raw user interview notes
 
-**Live Demo → [eval4576.github.io/ai-discovery-tool-analyzer](https://eval4576.github.io/ai-discovery-tool-analyzer/)**
+**Live Demo → [eval4576.github.io/ai-discovery-analyzer](https://eval4576.github.io/ai-discovery-analyzer)**
 
 ---
 
@@ -69,4 +69,35 @@ The app calls the Anthropic API directly from the browser. No backend required.
 
 Most discovery tools ask you to structure your notes before you get insights. That's backwards. Real interviews are messy — people interrupt themselves, go off-topic, say one thing and mean another.
 
-This tool is designed to work with raw, unstructured notes because that's what PMs actually have. The AI applies the structure after the fact, the way a senior PM would when reviewing a junior researcher's 
+This tool is designed to work with raw, unstructured notes because that's what PMs actually have. The AI applies the structure after the fact, the way a senior PM would when reviewing a junior researcher's notes.
+
+The opportunity scoring model weights three factors:
+- **Frequency** — how often the pain appeared across interviews
+- **Severity** — how much it disrupts the user's core job
+- **Strategic fit** — whether solving it moves a business metric that matters
+
+That's the same mental model I've used leading discovery at Kitchen United (Google Ventures, $100M Series C) and Connected Dealer Services — just made explicit and repeatable.
+
+---
+
+## Part of the AI PM Toolkit
+
+This is **Project 1** in a series of AI tools built to demonstrate applied AI product management:
+
+| # | Project | Status |
+|---|---|---|
+| **01** | **AI Discovery Interview Analyzer** | **✅ Live** |
+| 02 | Product Metrics Dashboard + AI Narrative | 🔜 Coming soon |
+| 03 | AI PRD Generator | ✅ [Live](https://eval4576.github.io/ai-prd-generator) |
+| 04 | Marketplace AI Opportunity Audit | 🔜 Coming soon |
+| 05 | AI Onboarding Flow Analyzer | 🔜 Coming soon |
+| 06 | Product Strategy Memo Series | 🔜 Coming soon |
+| 07 | PM Agent Prototype (Capstone) | 🔜 Coming soon |
+
+---
+
+## About
+
+Built by a Senior Product Manager with 8+ years across venture-backed marketplaces, platform APIs, and B2B SaaS — including Kitchen United (Google Ventures, $100M Series C) and Connected Dealer Services (CarRX).
+
+**[Portfolio](https://motionovalabs.com) · [LinkedIn](https://www.linkedin.com/in/eddievaldivia/) · [GitHub](https://github.com/eval4576)**
