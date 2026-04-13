@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI Discovery Analyzer · Motionova Labs</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#060608;--s1:#0d0d14;--s2:#12121c;--s3:#181826;
+  --a:#7c5cfc;--a2:#a78bfa;--a3:#c4b5fd;
+  --tx:#f0f0f8;--t2:#9898b8;--t3:#55556a;
+  --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.13);
+  --green:#10b981;--gold:#f59e0b;--red:#f87171;--blue:#60a5fa;
+  --r:12px;--r2:18px;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.6;min-height:100vh}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--a);border-radius:2px}
+
+header{border-bottom:1px solid var(--bd);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(6,6,8,.92);backdrop-filter:blur(20px);z-index:10}
+.hdr-brand{display:flex;align-items:center;gap:.75rem}
+.hdr-logo{font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--a2)}
+.hdr-div{width:1px;height:18px;background:var(--bd2)}
+.hdr-sub{font-size:.8rem;color:var(--t3)}
+.hdr-badge{font-size:.65rem;background:rgba(124,92,252,.12);border:1px solid rgba(124,92,252,.25);color:var(--a2);padding:.22rem .7rem;border-radius:999px;letter-spacing:.06em;text-transform:uppercase}
+
+.app{display:grid;grid-template-columns:420px 1fr;min-height:calc(100vh - 57px)}
+
+/* LEFT */
+.left{border-right:1px solid var(--bd);padding:1.75rem;display:flex;flex-direction:column;gap:1.4rem;overflow-y:auto}
+.field-label{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:.4rem}
+.field-sub{font-size:.72rem;color:var(--t3);margin-top:.3rem;line-height:1.5}
+textarea,input,select{width:100%;background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:.75rem 1rem;border-radius:var(--r);font-size:.84rem;font-family:inherit;outline:none;transition:border .2s;-webkit-appearance:none;resize:vertical}
+textarea:focus,input:focus,select:focus{border-color:rgba(124,92,252,.5)}
+textarea::placeholder{color:var(--t3)}
+select option{background:var(--s2)}
+
+.ex-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.ex-btn{font-size:.7rem;background:rgba(255,255,255,.03);border:1px solid var(--bd);color:var(--t2);padding:.28rem .65rem;border-radius:6px;cursor:pointer;transition:all .2s}
+.ex-btn:hover{border-color:var(--bd2);color:var(--tx)}
+
+.word-count{font-size:.68rem;color:var(--t3);text-align:right;margin-top:.25rem}
+.word-count.good{color:var(--green)}.word-count.warn{color:var(--gold)}
+
+.gen-btn{width:100%;background:var(--a);color:#fff;padding:.9rem;border-radius:var(--r);border:none;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:.6rem;margin-top:.25rem}
+.gen-btn:hover:not(:disabled){background:var(--a2);transform:translateY(-1px);box-shadow:0 10px 30px rgba(124,92,252,.3)}
+.gen-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+.tip{background:rgba(124,92,252,.05);border:1px solid rgba(124,92,252,.14);border-radius:var(--r);padding:.9rem 1rem;font-size:.76rem;color:var(--t2);line-height:1.65}
+.tip strong{color:var(--a2)}
+
+/* RIGHT */
+.right{padding:2rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.5rem}
+
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:420px;text-align:center;gap:1rem}
+.empty-icon{font-size:2.8rem;opacity:.25}
+.empty h3{font-size:.95rem;font-weight:600;color:var(--t2)}
+.empty p{font-size:.8rem;color:var(--t3);max-width:320px;line-height:1.65}
+
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:420px;gap:1.5rem;text-align:center}
+.spinner{width:34px;height:34px;border:2px solid var(--bd2);border-top-color:var(--a);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-msg{font-size:.8rem;color:var(--t3);animation:fadePulse 1.8s ease-in-out infinite}
+@keyframes fadePulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+/* OUTPUT */
+.out-header{background:linear-gradient(135deg,rgba(124,92,252,.07),transparent);border:1px solid var(--bd2);border-radius:var(--r2);padding:1.8rem 2rem}
+.out-eyebrow{font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;color:var(--a);margin-bottom:.35rem}
+.out-title{font-size:1.35rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.3rem}
+.out-meta{font-size:.73rem;color:var(--t3)}
+.out-meta span{color:var(--t2)}
+
+.actions{display:flex;gap:.75rem;flex-wrap:wrap}
+.act{display:inline-flex;align-items:center;gap:.4rem;padding:.48rem 1rem;border-radius:8px;font-size:.76rem;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid var(--bd2);background:transparent;color:var(--t2)}
+.act:hover{color:var(--tx);background:rgba(255,255,255,.04)}
+.act.primary{background:var(--a);color:#fff;border-color:transparent}
+.act.primary:hover{background:var(--a2)}
+
+.out-body{display:flex;flex-direction:column;gap:1.1rem}
+.card{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden}
+.card-head{padding:.9rem 1.4rem;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.65rem}
+.card-ico{width:26px;height:26px;background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.18);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.card-title{font-size:.76rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2)}
+.card-body{padding:1.2rem 1.4rem}
+
+/* JTBD ITEMS */
+.jtbd-item{border:1px solid var(--bd);border-radius:10px;padding:1rem 1.2rem;margin-bottom:.75rem;transition:border .2s}
+.jtbd-item:last-child{margin-bottom:0}
+.jtbd-item:hover{border-color:var(--bd2)}
+.jtbd-job{font-size:.87rem;font-weight:600;color:var(--tx);margin-bottom:.3rem}
+.jtbd-context{font-size:.8rem;color:var(--t2);margin-bottom:.5rem;line-height:1.6}
+.jtbd-meta{display:flex;gap:.5rem;flex-wrap:wrap}
+.jtbd-pill{font-size:.66rem;padding:.18rem .55rem;border-radius:999px;border:1px solid;font-weight:600}
+.freq-high{background:rgba(124,92,252,.1);border-color:rgba(124,92,252,.25);color:var(--a2)}
+.freq-med{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.22);color:var(--gold)}
+.freq-low{background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.2);color:var(--blue)}
+.pain-sev{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.2);color:var(--red)}
+
+/* THEMES GRID */
+.themes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem}
+.theme-card{background:var(--s3);border:1px solid var(--bd);border-radius:10px;padding:1rem}
+.theme-name{font-size:.82rem;font-weight:700;margin-bottom:.3rem}
+.theme-count{font-size:.68rem;color:var(--t3);margin-bottom:.5rem;letter-spacing:.04em}
+.theme-bar-wrap{height:4px;background:var(--bd);border-radius:2px;overflow:hidden}
+.theme-bar{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));border-radius:2px}
+.theme-quotes{margin-top:.6rem}
+.theme-quote{font-size:.75rem;color:var(--t3);font-style:italic;padding:.3rem 0;border-bottom:1px solid var(--bd);line-height:1.5}
+.theme-quote:last-child{border-bottom:none}
+
+/* OPPORTUNITY TABLE */
+.opp-row{display:grid;grid-template-columns:1fr auto auto;gap:1rem;align-items:center;padding:.75rem 0;border-bottom:1px solid var(--bd)}
+.opp-row:last-child{border-bottom:none}
+.opp-row-head{grid-template-columns:1fr auto auto;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);padding-bottom:.5rem}
+.opp-name{font-size:.84rem;font-weight:600;color:var(--tx)}
+.opp-sub{font-size:.75rem;color:var(--t2);margin-top:.15rem}
+.score-pill{font-size:.72rem;font-weight:700;padding:.25rem .65rem;border-radius:999px;text-align:center;min-width:48px}
+.score-h{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.score-m{background:rgba(245,158,11,.1);color:var(--gold);border:1px solid rgba(245,158,11,.2)}
+.score-l{background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.2)}
+.effort-pill{font-size:.66rem;color:var(--t3);border:1px solid var(--bd);border-radius:999px;padding:.2rem .55rem}
+
+/* SIGNALS */
+.signal-item{display:flex;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--bd);align-items:flex-start}
+.signal-item:last-child{border-bottom:none}
+.sig-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.45rem}
+.sig-green{background:var(--green);box-shadow:0 0 6px rgba(16,185,129,.4)}
+.sig-gold{background:var(--gold);box-shadow:0 0 6px rgba(245,158,11,.35)}
+.sig-red{background:var(--red);box-shadow:0 0 6px rgba(248,113,113,.35)}
+.sig-text{font-size:.82rem;color:var(--t2);line-height:1.6}
+.sig-label{font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);margin-bottom:.15rem}
+
+/* RECOMMENDATION BOX */
+.reco-box{background:linear-gradient(135deg,rgba(124,92,252,.07),rgba(13,13,20,.4));border:1px solid rgba(124,92,252,.2);border-radius:var(--r2);padding:1.6rem}
+.reco-eyebrow{font-size:.63rem;letter-spacing:.2em;text-transform:uppercase;color:var(--a);margin-bottom:.5rem}
+.reco-box h3{font-size:1rem;font-weight:700;margin-bottom:.6rem}
+.reco-box p{font-size:.84rem;color:var(--t2);line-height:1.7;margin-bottom:.75rem}
+.reco-chips{display:flex;flex-wrap:wrap;gap:.45rem}
+.reco-chip{font-size:.72rem;background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.2);color:var(--a2);padding:.22rem .65rem;border-radius:999px}
+
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--s3);border:1px solid var(--bd2);border-radius:10px;padding:.75rem 1.2rem;font-size:.8rem;color:var(--tx);opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;z-index:100}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .left{border-right:none;border-bottom:1px solid var(--bd)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-brand">
+    <div class="hdr-logo">Motionova Labs</div>
+    <div class="hdr-div"></div>
+    <div class="hdr-sub">AI PM Toolkit</div>
+  </div>
+  <div class="hdr-badge">Discovery Analyzer v1.0</div>
+</header>
+
+<div class="app">
+  <!-- LEFT PANEL -->
+  <div class="left">
+    <div>
+      <div class="field-label">Raw Interview Notes</div>
+      <textarea id="notes" rows="10" placeholder="Paste your raw user interview notes here. Can be messy — direct quotes, bullet points, stream of consciousness. The AI handles the rest."></textarea>
+      <div class="word-count" id="wc">0 words</div>
+      <div class="field-sub">Tip: More context = richer insights. Aim for 100+ words.</div>
+      <div class="ex-row">
+        <button class="ex-btn" onclick="fillEx('marketplace')">Ghost Kitchen Operator</button>
+        <button class="ex-btn" onclick="fillEx('automotive')">Dealership Manager</button>
+        <button class="ex-btn" onclick="fillEx('saas')">B2B SaaS User</button>
+        <button class="ex-btn" onclick="fillEx('multi')">Multi-interview Set</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="field-label">Product Domain</div>
+      <select id="domain">
+        <option>Multi-sided Marketplace</option>
+        <option>B2B SaaS</option>
+        <option>Automotive Platform</option>
+        <option>Mobile App</option>
+        <option>API / Platform Product</option>
+        <option>Consumer App</option>
+        <option>Energy / Infrastructure</option>
+      </select>
+    </div>
+
+    <div>
+      <div class="field-label">Interview Subject</div>
+      <input id="subject" type="text" placeholder="e.g. Ghost kitchen operators, dealership service managers"/>
+    </div>
+
+    <div>
+      <div class="field-label">Discovery Goal</div>
+      <select id="goal">
+        <option>Identify unmet needs and friction points</option>
+        <option>Validate a specific product hypothesis</option>
+        <option>Understand workflow and process gaps</option>
+        <option>Prioritize roadmap opportunities</option>
+        <option>Evaluate competitor and alternative usage</option>
+      </select>
+    </div>
+
+    <div>
+      <div class="field-label">Number of Interviews Represented</div>
+      <select id="numInterviews">
+        <option value="1">1 interview</option>
+        <option value="3">2–3 interviews</option>
+        <option value="5" selected>4–6 interviews</option>
+        <option value="10">7–10 interviews</option>
+        <option value="15">10+ interviews</option>
+      </select>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="analyze()">
+      <span id="genTxt">✦ Analyze Interviews</span>
+    </button>
+
+    <div class="tip">
+      <strong>JTBD Framework:</strong> This tool extracts Jobs-to-be-Done — the underlying goal a user is trying to accomplish — not just their surface-level requests. It's the discovery lens that separates senior PMs from junior ones.
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right" id="output">
+    <div class="empty">
+      <div class="empty-icon">🎙️</div>
+      <h3>Paste interview notes to begin</h3>
+      <p>Raw notes, bullet points, direct quotes — paste anything. The AI extracts structured insights, JTBD patterns, and ranked opportunities.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard ✓</div>
+
+<script>
+const EXAMPLES = {
+  marketplace:{
+    notes:`Interview with Marco, ghost kitchen operator running 4 restaurant brands out of Kitchen United Pasadena location.
+
+"My biggest headache is inventory. When I run out of burger buns on DoorDash, I have to manually go into each platform and pause that item. By the time I do it on Grubhub it's already been ordered twice and I have to refund them. It's embarrassing."
+
+"The reporting is all over the place. DoorDash gives me one dashboard, Uber Eats is completely different, I'm exporting CSVs at midnight trying to figure out what actually sold."
+
+"I just want to know — are we profitable or not? That question takes me like 2 hours every week to answer."
+
+"Onboarding a new brand takes me 3-4 days because I have to set everything up on each platform separately. There's no single place to do it."
+
+"If I could pause all platforms with one button when I'm getting slammed in the kitchen, that alone would save my sanity."
+
+"I have great data on what sells but I never look at it because pulling it together is too much work."`,
+    domain:'Multi-sided Marketplace',
+    subject:'Ghost kitchen operators managing multiple delivery platforms',
+    goal:'Identify unmet needs and friction points'
+  },
+  automotive:{
+    notes:`Session with Diane, service manager at AutoNation dealership, CarRX enterprise pilot user.
+
+"Every morning I have to manually check the CarRX app and then re-enter the bookings into our DMS. It's the same information twice. Takes me about 45 minutes just to start my day."
+
+"When a customer reschedules through the app, I don't always get notified. I had a tech waiting for a car that never showed up because the system didn't sync."
+
+"I want to see my whole day at a glance — what's coming in, what techs are assigned, what's running late. Right now that doesn't exist."
+
+"The mobile app is fine for customers but I'm always on a desktop. The manager view feels like an afterthought."
+
+"My service advisors won't use it because it means learning another tool. If it doesn't connect to what we already use, it's just more work."
+
+"Customers love getting the text reminders though. That part works really well. If the rest was that smooth I'd use it for everything."`,
+    domain:'Automotive Platform',
+    subject:'Dealership service managers at enterprise partner locations',
+    goal:'Understand workflow and process gaps'
+  },
+  saas:{
+    notes:`3 interviews with ops leads at mid-market SaaS companies, all in first 60 days of using platform.
+
+User 1 (Rachel, 500-person fintech): "The onboarding checklist feels like it was designed for a solo user, not a team. I have to assign tasks to 4 different people and there's no way to do that in the app. I'm just emailing people screenshots."
+
+"I had no idea what 'complete' looked like until week 3. There's no milestone or moment that felt like success."
+
+User 2 (James, 200-person logistics): "I went through the whole setup and then realized I'd configured it wrong for our use case. Had to start over. A 10-minute call with someone would have saved me 3 days."
+
+"The help docs are thorough but I can never find what I'm looking for in the moment. I end up just Googling the problem."
+
+User 3 (Priya, 300-person healthcare): "My team doesn't understand why we're using this tool. I never got anything I could share with them to explain the value. I kind of sold it myself from scratch."
+
+"The first week feels very lonely. No check-ins, no guidance. You're just dropped in and expected to figure it out."`,
+    domain:'B2B SaaS',
+    subject:'New B2B customers in first 60 days post-signup',
+    goal:'Identify unmet needs and friction points'
+  },
+  multi:{
+    notes:`Compiled notes from 6 discovery sessions — product managers at growth-stage startups discussing AI tools and workflow.
+
+Recurring themes across sessions:
+
+On data overload: "I have more data than I know what to do with. The problem isn't access, it's synthesis." (3/6 mentioned similar)
+
+On user research: "I do maybe 2 user interviews a month when I should be doing 10. It's not that I don't want to — the synthesis takes forever." "I have pages of notes from last quarter that I still haven't processed." "We lost a really important insight because nobody wrote it up in time."
+
+On roadmap pressure: "Stakeholders want the roadmap locked before we've done the discovery. I'm always playing catch-up." "Engineering wants tickets, leadership wants strategy. I'm trying to do both and neither is getting my full attention."
+
+On AI tools today: "I use ChatGPT for writing sometimes but I don't trust it for anything strategic." "I'd use AI way more if it understood our product context." "The tools feel generic. I want something that thinks like a PM."
+
+On prioritization: "I know what the loudest customers want. I have no idea what the silent majority needs." "We ship what's easy to build, not what's most valuable. I hate that."`,
+    domain:'B2B SaaS',
+    subject:'Product managers at growth-stage startups',
+    goal:'Prioritize roadmap opportunities'
+  }
+};
+
+const textarea = document.getElementById('notes');
+textarea.addEventListener('input', () => {
+  const words = textarea.value.trim().split(/\s+/).filter(Boolean).length;
+  const el = document.getElementById('wc');
+  el.textContent = `${words} words`;
+  el.className = 'word-count' + (words >= 100 ? ' good' : words >= 50 ? ' warn' : '');
+});
+
+function fillEx(key) {
+  const e = EXAMPLES[key];
+  textarea.value = e.notes;
+  document.getElementById('domain').value = e.domain;
+  document.getElementById('subject').value = e.subject;
+  document.getElementById('goal').value = e.goal;
+  textarea.dispatchEvent(new Event('input'));
+}
+
+const MSGS = [
+  'Reading interview notes...','Extracting Jobs-to-be-Done...','Clustering pain point themes...',
+  'Scoring opportunity areas...','Building insight signals...','Synthesizing recommendations...'
+];
+
+let msgTimer;
+function showLoading() {
+  let i = 0;
+  document.getElementById('output').innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <div class="load-msg" id="lmsg">${MSGS[0]}</div>
+    </div>`;
+  msgTimer = setInterval(() => {
+    i = (i+1) % MSGS.length;
+    const el = document.getElementById('lmsg');
+    if(el) el.textContent = MSGS[i];
+  }, 1600);
+}
+
+function freqClass(f) {
+  if(!f) return 'freq-med';
+  const v = (f+'').toLowerCase();
+  if(v.includes('high') || v==='3' || v==='4' || v==='5') return 'freq-high';
+  if(v.includes('low') || v==='1') return 'freq-low';
+  return 'freq-med';
+}
+function scoreClass(s) {
+  const n = parseInt(s);
+  if(n >= 8) return 'score-h';
+  if(n >= 5) return 'score-m';
+  return 'score-l';
+}
+function effortLabel(e) {
+  if(!e) return 'Medium effort';
+  const v = (e+'').toLowerCase();
+  if(v.includes('low') || v.includes('small')) return 'Low effort';
+  if(v.includes('high') || v.includes('large')) return 'High effort';
+  return 'Medium effort';
+}
+
+async function analyze() {
+  const notes = textarea.value.trim();
+  if(!notes) { textarea.focus(); return; }
+  const domain = document.getElementById('domain').value;
+  const subject = document.getElementById('subject').value || 'users';
+  const goal = document.getElementById('goal').value;
+  const numInt = document.getElementById('numInterviews').value;
+
+  document.getElementById('genBtn').disabled = true;
+  document.getElementById('genTxt').textContent = 'Analyzing...';
+  showLoading();
+
+  const prompt = `You are a senior product manager expert in Jobs-to-be-Done (JTBD) discovery and user research synthesis.
+
+Analyze these user interview notes and return a JSON insight report. Be specific, use language from the notes where possible, and think like a PM who has to present this to a leadership team.
+
+Context:
+- Interview Notes: ${notes}
+- Product Domain: ${domain}
+- Interview Subject: ${subject}
+- Discovery Goal: ${goal}
+- Number of Interviews: ${numInt}
+
+Return ONLY valid JSON with this exact structure (concise strings, no markdown):
+
+{
+  "summary": "2-sentence executive summary of what you learned",
+  "interviewQuality": "Brief assessment of the data richness and confidence level",
+  "jtbdJobs": [
+    {
+      "job": "The core job statement (When I... I want to... So I can...)",
+      "context": "1 sentence explaining the situation and motivation",
+      "frequency": "High / Medium / Low",
+      "painSeverity": "Critical / Moderate / Minor",
+      "evidenceQuote": "Direct or paraphrased quote from the notes supporting this"
+    }
+  ],
+  "themes": [
+    {
+      "name": "Theme name (2-4 words)",
+      "mentions": number,
+      "maxMentions": number,
+      "insight": "What this theme reveals about user needs",
+      "quotes": ["quote 1", "quote 2"]
+    }
+  ],
+  "opportunities": [
+    {
+      "opportunity": "Opportunity title",
+      "description": "What to build and why it matters",
+      "opportunityScore": number between 1-10,
+      "effort": "Low / Medium / High",
+      "rationale": "Why this scores high or low"
+    }
+  ],
+  "signals": {
+    "green": ["Positive signal 1", "Positive signal 2"],
+    "watch": ["Risk or uncertainty 1", "Risk or uncertainty 2"],
+    "red": ["Critical concern 1"]
+  },
+  "recommendation": {
+    "headline": "Top recommended next step (one sharp sentence)",
+    "rationale": "2-3 sentences on why this is the right move given the data",
+    "nextActions": ["Action 1", "Action 2", "Action 3", "Action 4"]
+  }
+}`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:4000,
+        messages:[{role:"user",content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content.map(b=>b.text||'').join('');
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const result = JSON.parse(clean);
+    clearInterval(msgTimer);
+    render(result, subject, domain);
+  } catch(err) {
+    clearInterval(msgTimer);
+    document.getElementById('output').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">⚠️</div>
+        <h3>Something went wrong</h3>
+        <p style="color:var(--red)">${err.message}</p>
+      </div>`;
+  } finally {
+    document.getElementById('genBtn').disabled = false;
+    document.getElementById('genTxt').textContent = '✦ Analyze Interviews';
+  }
+}
+
+function render(d, subject, domain) {
+  const now = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  const jobs = (d.jtbdJobs||[]).map(j=>`
+    <div class="jtbd-item">
+      <div class="jtbd-job">${j.job||''}</div>
+      <div class="jtbd-context">${j.context||''}</div>
+      ${j.evidenceQuote ? `<div style="font-size:.78rem;color:var(--t3);font-style:italic;margin-bottom:.5rem;padding:.4rem .75rem;border-left:2px solid var(--a);background:rgba(124,92,252,.04);border-radius:0 6px 6px 0">"${j.evidenceQuote}"</div>` : ''}
+      <div class="jtbd-meta">
+        <span class="jtbd-pill ${freqClass(j.frequency)}">Frequency: ${j.frequency||'Med'}</span>
+        <span class="jtbd-pill pain-sev">Severity: ${j.painSeverity||'Moderate'}</span>
+      </div>
+    </div>`).join('');
+
+  const maxM = Math.max(...(d.themes||[]).map(t=>t.maxMentions||5), 5);
+  const themes = (d.themes||[]).map(t=>`
+    <div class="theme-card">
+      <div class="theme-name">${t.name||''}</div>
+      <div class="theme-count">${t.mentions||0} mentions · ${t.insight||''}</div>
+      <div class="theme-bar-wrap"><div class="theme-bar" style="width:${Math.round(((t.mentions||1)/maxM)*100)}%"></div></div>
+      ${t.quotes ? `<div class="theme-quotes">${(t.quotes||[]).slice(0,2).map(q=>`<div class="theme-quote">"${q}"</div>`).join('')}</div>` : ''}
+    </div>`).join('');
+
+  const opps = (d.opportunities||[]).map(o=>`
+    <div class="opp-row">
+      <div><div class="opp-name">${o.opportunity||''}</div><div class="opp-sub">${o.description||''}</div></div>
+      <span class="score-pill ${scoreClass(o.opportunityScore)}">${o.opportunityScore}/10</span>
+      <span class="effort-pill">${effortLabel(o.effort)}</span>
+    </div>`).join('');
+
+  const sig = d.signals || {};
+  const greenArr = Array.isArray(sig.green) ? sig.green : [];
+  const watchArr = Array.isArray(sig.watch) ? sig.watch : (Array.isArray(sig.yellow) ? sig.yellow : []);
+  const redArr   = Array.isArray(sig.red)   ? sig.red   : [];
+  const greens = greenArr.map(s=>`<div class="signal-item"><div class="sig-dot sig-green"></div><div class="sig-text"><div class="sig-label">Positive signal</div>${s}</div></div>`).join('');
+  const watches = watchArr.map(s=>`<div class="signal-item"><div class="sig-dot sig-gold"></div><div class="sig-text"><div class="sig-label">Watch</div>${s}</div></div>`).join('');
+  const reds = redArr.map(s=>`<div class="signal-item"><div class="sig-dot sig-red"></div><div class="sig-text"><div class="sig-label">Critical concern</div>${s}</div></div>`).join('');
+  const actions = (d.recommendation?.nextActions||[]).map(a=>`<span class="reco-chip">→ ${a}</span>`).join('');
+
+  document.getElementById('output').innerHTML = `
+    <div class="out-header">
+      <div class="out-eyebrow">Discovery Insight Report</div>
+      <div class="out-title">${subject} — Interview Analysis</div>
+      <div class="out-meta">Generated <span>${now}</span> · <span>${domain}</span> · <span>${(d.jtbdJobs||[]).length} jobs identified</span> · <span>${(d.opportunities||[]).length} opportunities scored</span></div>
+    </div>
+
+    <div class="actions">
+      <button class="act primary" onclick="copyInsights()">Copy Insights</button>
+      <button class="act" onclick="window.print()">Export PDF</button>
+      <button class="act" onclick="analyze()">Re-analyze ↻</button>
+    </div>
+
+    <div class="out-body">
+
+      <div class="card">
+        <div class="card-head"><div class="card-ico">⚡</div><div class="card-title">Executive Summary</div></div>
+        <div class="card-body">
+          <p style="font-size:.9rem;color:var(--tx);font-weight:500;line-height:1.7;margin-bottom:.6rem">${d.summary||''}</p>
+          <p style="font-size:.78rem;color:var(--t3)">Data quality: ${d.interviewQuality||''}</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-ico">🎯</div><div class="card-title">Jobs to Be Done</div></div>
+        <div class="card-body">${jobs}</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-ico">🧩</div><div class="card-title">Pain Point Themes</div></div>
+        <div class="card-body"><div class="themes-grid">${themes}</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-ico">🚀</div><div class="card-title">Opportunity Scoring</div></div>
+        <div class="card-body" style="padding:0 1.4rem">
+          <div class="opp-row opp-row-head"><div>Opportunity</div><div>Score</div><div>Effort</div></div>
+          ${opps}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-ico">📡</div><div class="card-title">Discovery Signals</div></div>
+        <div class="card-body">${greens}${watches}${reds}</div>
+      </div>
+
+      <div class="reco-box">
+        <div class="reco-eyebrow">PM Recommendation</div>
+        <h3>${d.recommendation?.headline||''}</h3>
+        <p>${d.recommendation?.rationale||''}</p>
+        <div class="reco-chips">${actions}</div>
+      </div>
+
+    </div>`;
+
+  window._insightData = d;
+}
+
+function copyInsights() {
+  if(!window._insightData) return;
+  const d = window._insightData;
+  const txt = [
+    `# Discovery Insight Report\n`,
+    `## Summary\n${d.summary}\n\nData quality: ${d.interviewQuality}`,
+    `\n## Jobs to Be Done\n${(d.jtbdJobs||[]).map(j=>`- ${j.job}\n  Context: ${j.context}\n  Frequency: ${j.frequency} | Severity: ${j.painSeverity}`).join('\n')}`,
+    `\n## Pain Point Themes\n${(d.themes||[]).map(t=>`- ${t.name} (${t.mentions} mentions): ${t.insight}`).join('\n')}`,
+    `\n## Opportunity Scoring\n${(d.opportunities||[]).map(o=>`- [${o.opportunityScore}/10] ${o.opportunity}: ${o.description}`).join('\n')}`,
+    `\n## Signals\nPositive:\n${(d.signals?.green||d.signals?.positive||[]).map(s=>'- '+s).join('\n')}\nWatch:\n${(d.signals?.watch||d.signals?.yellow||[]).map(s=>'- '+s).join('\n')}\nCritical:\n${(d.signals?.red||d.signals?.critical||[]).map(s=>'- '+s).join('\n')}`,
+    `\n## Recommendation\n${d.recommendation?.headline}\n\n${d.recommendation?.rationale}\n\nNext actions:\n${(d.recommendation?.nextActions||[]).map(a=>'- '+a).join('\n')}`
+  ].join('\n');
+  navigator.clipboard.writeText(txt).then(()=>{
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2500);
+  });
+}
+</script>
+</body>
+</html>
