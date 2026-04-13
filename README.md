@@ -44,7 +44,7 @@ Built as part of the **AI PM Toolkit** at [Motionova Labs](https://motionovalabs
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/ai-discovery-analyzer.git
+git clone https://github.com/eval4576/ai-discovery-analyzer.git
 
 # Open directly in browser — no build step, no server needed
 open index.html
